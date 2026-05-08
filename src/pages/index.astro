@@ -1,5 +1,20 @@
 ---
+const players = [
+	{
+		name: 'Player 1',
+		handle: 'octocat',
+		score: '13,337',
+		heatmap: [2, 3, 1, 4, 2, 0, 3, 1, 4, 2, 3, 4, 1, 2, 0, 3, 2, 4, 1, 3, 2, 0, 4, 1, 2, 3, 1, 4, 2, 3]
+	},
+	{
+		name: 'Player 2',
+		handle: 'mona',
+		score: '12,480',
+		heatmap: [1, 4, 2, 3, 1, 2, 4, 0, 3, 2, 4, 1, 3, 2, 4, 1, 0, 3, 2, 4, 1, 3, 2, 4, 0, 1, 3, 2, 4, 1]
+	}
+];
 
+const intensityClasses = ['cell-0', 'cell-1', 'cell-2', 'cell-3', 'cell-4'];
 ---
 
 <html lang="en">
@@ -8,10 +23,407 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Mona Mayhem</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+			rel="stylesheet"
+		/>
+		<title>Mona Mayhem Battle Arena</title>
 	</head>
 	<body>
-		<h1>Mona Mayhem</h1>
-		<p>Welcome to Mona Mayhem! Time to build a GitHub Contribution Battle Arena.</p>
+		<main class="battle-page">
+			<section class="hero-panel">
+				<p class="eyebrow">GitHub Contribution Battle Arena</p>
+				<div class="hero-header">
+					<div>
+						<h1>Mona Mayhem</h1>
+						<p class="subtitle">
+							Retro neon rivalry with a one-click palette swap for your battle screen.
+						</p>
+					</div>
+					<button class="theme-toggle" type="button" aria-pressed="false" data-theme-toggle>
+						Swap to Blue Blaze
+					</button>
+				</div>
+
+				<form class="battle-form">
+					<label>
+						<span>Player 1</span>
+						<input type="text" name="player1" value="octocat" autocomplete="off" />
+					</label>
+					<label>
+						<span>Player 2</span>
+						<input type="text" name="player2" value="mona" autocomplete="off" />
+					</label>
+					<button class="battle-button" type="button">Start Battle</button>
+				</form>
+			</section>
+
+			<section class="arena">
+				{
+					players.map((player, index) => (
+						<>
+							<article class="player-card">
+								<div class="card-header">
+									<p>{player.name}</p>
+									<span>@{player.handle}</span>
+								</div>
+								<p class="score">{player.score}</p>
+								<div class="heatmap" aria-label={`${player.name} contribution grid preview`}>
+									{player.heatmap.map((value) => (
+										<span class={`heatmap-cell ${intensityClasses[value]}`}></span>
+									))}
+								</div>
+							</article>
+							{
+								index === 0 && (
+									<div class="vs-badge" aria-hidden="true">
+										VS
+									</div>
+								)
+							}
+						</>
+					))
+				}
+			</section>
+		</main>
+
+		<script>
+			const storageKey = 'mona-mayhem-theme';
+			const altTheme = 'blue-blaze';
+			const toggle = document.querySelector('[data-theme-toggle]');
+			const root = document.body;
+			const syncThemeHash = (theme) => {
+				if (theme === altTheme) {
+					history.replaceState(null, '', '#blue-blaze');
+				} else if (window.location.hash) {
+					history.replaceState(null, '', window.location.pathname + window.location.search);
+				}
+			};
+
+			const updateToggleLabel = () => {
+				if (!(toggle instanceof HTMLButtonElement)) {
+					return;
+				}
+
+				const isAltTheme = root.dataset.theme === altTheme;
+				toggle.textContent = isAltTheme ? 'Back to Classic Neon' : 'Swap to Blue Blaze';
+				toggle.setAttribute('aria-pressed', String(isAltTheme));
+			};
+
+			const applyTheme = (theme) => {
+				if (theme === altTheme) {
+					root.dataset.theme = altTheme;
+				} else {
+					delete root.dataset.theme;
+				}
+
+				syncThemeHash(theme);
+				updateToggleLabel();
+			};
+
+			const initialTheme = window.location.hash === '#blue-blaze' ? altTheme : localStorage.getItem(storageKey) ?? '';
+			applyTheme(initialTheme);
+
+			if (toggle instanceof HTMLButtonElement) {
+				toggle.addEventListener('click', () => {
+					const nextTheme = root.dataset.theme === altTheme ? '' : altTheme;
+					applyTheme(nextTheme);
+					localStorage.setItem(storageKey, nextTheme);
+				});
+			}
+		</script>
 	</body>
 </html>
+
+<style>
+	:global(:root) {
+		color-scheme: dark;
+		--bg: #0a0a1a;
+		--bg-panel: rgba(18, 18, 42, 0.84);
+		--text: #f8f7ff;
+		--muted: #cfc2ff;
+		--accent-primary: #5fed83;
+		--accent-secondary: #8a2be2;
+		--accent-primary-soft: rgba(95, 237, 131, 0.25);
+		--accent-secondary-soft: rgba(138, 43, 226, 0.24);
+		--border-glow: rgba(95, 237, 131, 0.38);
+		--cell-0: rgba(255, 255, 255, 0.08);
+		--cell-1: rgba(95, 237, 131, 0.22);
+		--cell-2: rgba(95, 237, 131, 0.42);
+		--cell-3: rgba(138, 43, 226, 0.6);
+		--cell-4: linear-gradient(135deg, #5fed83, #8a2be2);
+	}
+
+	:global(body[data-theme='blue-blaze']) {
+		--accent-primary: #00f5ff;
+		--accent-secondary: #ff6b35;
+		--muted: #ffd7c9;
+		--accent-primary-soft: rgba(0, 245, 255, 0.24);
+		--accent-secondary-soft: rgba(255, 107, 53, 0.24);
+		--border-glow: rgba(0, 245, 255, 0.35);
+		--cell-1: rgba(0, 245, 255, 0.24);
+		--cell-2: rgba(0, 245, 255, 0.46);
+		--cell-3: rgba(255, 107, 53, 0.62);
+		--cell-4: linear-gradient(135deg, #00f5ff, #ff6b35);
+	}
+
+	:global(body) {
+		margin: 0;
+		min-height: 100vh;
+		font-family: 'Press Start 2P', system-ui, sans-serif;
+		background:
+			linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+			radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 36%),
+			var(--bg);
+		background-size: 100% 4px, auto, auto;
+		color: var(--text);
+	}
+
+	.battle-page {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 3rem 1.5rem 4rem;
+	}
+
+	.hero-panel,
+	.player-card {
+		position: relative;
+		overflow: hidden;
+		border: 2px solid var(--border-glow);
+		border-radius: 24px;
+		background: var(--bg-panel);
+		box-shadow:
+			0 0 0 1px rgba(255, 255, 255, 0.05),
+			0 0 28px var(--accent-primary-soft),
+			0 0 45px var(--accent-secondary-soft);
+		backdrop-filter: blur(12px);
+	}
+
+	.hero-panel {
+		padding: 2rem;
+	}
+
+	.hero-panel::before,
+	.player-card::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(120deg, transparent 10%, rgba(255, 255, 255, 0.08) 42%, transparent 70%);
+		opacity: 0.45;
+		pointer-events: none;
+	}
+
+	.eyebrow,
+	.card-header p,
+	label span {
+		font-size: 0.7rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--accent-primary);
+	}
+
+	.hero-header {
+		display: flex;
+		gap: 1.5rem;
+		align-items: start;
+		justify-content: space-between;
+	}
+
+	h1 {
+		margin: 0.5rem 0 1rem;
+		font-size: clamp(2.2rem, 6vw, 4.8rem);
+		line-height: 1.1;
+		text-shadow:
+			0 0 12px var(--accent-primary),
+			0 0 28px var(--accent-secondary);
+	}
+
+	.subtitle {
+		max-width: 40rem;
+		font-size: 0.8rem;
+		line-height: 1.8;
+		color: var(--muted);
+	}
+
+	.theme-toggle,
+	.battle-button,
+	input {
+		font: inherit;
+	}
+
+	.theme-toggle,
+	.battle-button {
+		border: 2px solid currentColor;
+		border-radius: 999px;
+		background: transparent;
+		padding: 0.95rem 1.4rem;
+		color: var(--accent-primary);
+		cursor: pointer;
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease,
+			background-color 0.2s ease;
+	}
+
+	.theme-toggle:hover,
+	.theme-toggle:focus-visible,
+	.battle-button:hover,
+	.battle-button:focus-visible {
+		transform: translateY(-2px);
+		background: rgba(255, 255, 255, 0.04);
+		box-shadow: 0 0 22px var(--accent-primary-soft);
+		outline: none;
+	}
+
+	.battle-form {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+		gap: 1rem;
+		margin-top: 2rem;
+		align-items: end;
+	}
+
+	label {
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	input {
+		width: 100%;
+		box-sizing: border-box;
+		border: 2px solid rgba(255, 255, 255, 0.14);
+		border-radius: 16px;
+		background: rgba(7, 11, 30, 0.82);
+		color: var(--text);
+		padding: 1rem;
+	}
+
+	input:focus-visible {
+		outline: 2px solid var(--accent-primary);
+		outline-offset: 2px;
+		border-color: var(--accent-primary);
+		box-shadow: 0 0 18px var(--accent-primary-soft);
+	}
+
+	.battle-button {
+		background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+		color: #08111e;
+		box-shadow: 0 0 30px var(--accent-secondary-soft);
+	}
+
+	.arena {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+		gap: 1.5rem;
+		align-items: center;
+		margin-top: 2rem;
+	}
+
+	.player-card {
+		padding: 1.5rem;
+	}
+
+	.card-header {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.card-header span {
+		font-size: 0.72rem;
+		color: var(--muted);
+	}
+
+	.score {
+		margin: 1.5rem 0;
+		font-size: clamp(1.6rem, 4vw, 2.8rem);
+		color: var(--accent-secondary);
+		text-shadow: 0 0 14px var(--accent-secondary);
+	}
+
+	.heatmap {
+		display: grid;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		gap: 0.55rem;
+	}
+
+	.heatmap-cell {
+		aspect-ratio: 1;
+		border-radius: 8px;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.06);
+	}
+
+	.cell-0 {
+		background: var(--cell-0);
+	}
+
+	.cell-1 {
+		background: var(--cell-1);
+	}
+
+	.cell-2 {
+		background: var(--cell-2);
+	}
+
+	.cell-3 {
+		background: var(--cell-3);
+	}
+
+	.cell-4 {
+		background: var(--cell-4);
+	}
+
+	.vs-badge {
+		display: grid;
+		place-items: center;
+		width: 88px;
+		aspect-ratio: 1;
+		border-radius: 50%;
+		border: 3px solid var(--accent-primary);
+		background: radial-gradient(circle, var(--accent-secondary-soft), rgba(8, 8, 24, 0.95));
+		color: var(--text);
+		box-shadow:
+			0 0 18px var(--accent-primary-soft),
+			0 0 26px var(--accent-secondary-soft);
+	}
+
+	@media (max-width: 900px) {
+		.hero-header,
+		.arena {
+			grid-template-columns: 1fr;
+			display: grid;
+		}
+
+		.hero-header {
+			justify-items: start;
+		}
+
+		.vs-badge {
+			margin: 0 auto;
+		}
+
+		.battle-form {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.battle-page {
+			padding-inline: 1rem;
+		}
+
+		.hero-panel,
+		.player-card {
+			padding: 1.25rem;
+		}
+
+		h1 {
+			font-size: 2rem;
+		}
+	}
+</style>
