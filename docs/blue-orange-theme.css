@@ -1,0 +1,24 @@
+/* ── Blue-Orange alternative retro arcade theme ── */
+/* Keeps the dark background and CRT-grid look; swaps accent colors to
+   blue (#00f5ff) and orange (#ff6b35) instead of cyan/magenta/purple.  */
+html[data-theme="blue-orange"] {
+    --neon-cyan: #00f5ff;
+    --neon-magenta: #ff6b35;
+    --neon-purple: #ff8c42;
+}
+
+/* ── Body grid overlay ── */
+html[data-theme="blue-orange"] body::before {
+    background: linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,107,53,0.03) 1px, transparent 1px);
+}
+
+/* ── Locale picker hover ── */
+html[data-theme="blue-orange"] .locale-toggle:hover {
+    background: var(--neon-magenta);
+    border-color: var(--neon-magenta);
+}
+
+html[data-theme="blue-orange"] .locale-picker li:hover {
+    background: var(--neon-magenta);
+}
