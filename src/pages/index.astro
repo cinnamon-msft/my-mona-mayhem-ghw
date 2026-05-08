@@ -123,8 +123,9 @@ const intensityClasses = ['cell-0', 'cell-1', 'cell-2', 'cell-3', 'cell-4'];
 				updateToggleLabel();
 			};
 
-			const initialTheme =
-				window.location.hash === '#blue-blaze' ? altTheme : (localStorage.getItem(storageKey) ?? '');
+			const hasBlueBlazeHash = window.location.hash === '#blue-blaze';
+			const savedTheme = localStorage.getItem(storageKey) ?? '';
+			const initialTheme = hasBlueBlazeHash ? altTheme : savedTheme;
 			applyTheme(initialTheme);
 
 			if (toggle instanceof HTMLButtonElement) {
@@ -396,8 +397,8 @@ const intensityClasses = ['cell-0', 'cell-1', 'cell-2', 'cell-3', 'cell-4'];
 	@media (max-width: 900px) {
 		.hero-header,
 		.arena {
-			grid-template-columns: 1fr;
 			display: grid;
+			grid-template-columns: 1fr;
 		}
 
 		.hero-header {
